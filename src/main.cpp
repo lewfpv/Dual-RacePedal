@@ -9,6 +9,14 @@
 #define BUTTON1_PIN 1  // GPIO1 -> PEDAL1  [R1]
 #define BUTTON2_PIN 2  // GPIO2 -> PEDAL2  [R3]
 
+//PEDAL INFO STRUCT
+struct PedalInfo {
+  uint8_t id1;
+  uint8_t id2;
+};
+PedalInfo currentPedal;
+
+
 // debounce kezelés a gombokra
 unsigned long lastPress1 = 0;
 unsigned long lastPress2 = 0;
@@ -22,6 +30,19 @@ const unsigned long debounceDelay = 200;  // 200 ms
 // LED csíkok objektumai
 Adafruit_NeoPixel led1(NUM_LEDS, LED1_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel led2(NUM_LEDS, LED2_PIN, NEO_GRB + NEO_KHZ800);
+
+// --- FUNKCIÓK ---
+PedalInfo getPedalInfo() {
+  String mac = WiFi.macAddress();
+  if(mac == "EC:DA:3B:BF:E9:A8") {
+    return {1, 2};
+  }
+  if(mac == "EC:DA:3B:BF:C6:B8") {
+    return {3, 4};
+  }
+  // Alapértelmezett, 'ismeretlen' érték
+  return {0, 0};
+}
 
 // Segédfüggvény LED szín állításra
 void setColor(Adafruit_NeoPixel &led, uint8_t r, uint8_t g, uint8_t b) {
@@ -84,6 +105,9 @@ void setup() {
   led2.begin(); setColor(led2, 255, 0, 0);
 
   WiFi.mode(WIFI_STA);
+
+  currentPedal = getPedalInfo();
+
   WiFi.disconnect();
 
   //ESP-NOW inicializálás
@@ -110,7 +134,7 @@ void loop() {
 
   if (prev1 == HIGH && curr1 == LOW && now - lastPress1 > debounceDelay) {
     lastPress1 = now;
-    Message msg = {1, 1, 0};  // verseny uzenet, első versenyző (R1), kész=0
+    Message msg = {1, currentPedal.id1, 0};  // verseny uzenet, első versenyző (R1), kész=0
     SendNOW(receiver1, msg);
     SendNOW(receiver2, msg);
     setColor(led1, 0, 255, 0);  // zöld
@@ -118,7 +142,7 @@ void loop() {
 
   if (prev2 == HIGH && curr2 == LOW && now - lastPress2 > debounceDelay) {
     lastPress2 = now;
-    Message msg = {1, 2, 0}; // verseny uzenet, masodik versenyző (R3), kész=0
+    Message msg = {1, currentPedal.id2, 0}; // verseny uzenet, masodik versenyző (R3), kész=0
     SendNOW(receiver1, msg);
     SendNOW(receiver2, msg);
     setColor(led2, 0, 255, 0);  // zöld
