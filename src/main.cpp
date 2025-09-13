@@ -5,8 +5,8 @@
 #include <esp_now.h>
 #include <Adafruit_NeoPixel.h>
 
-//VERSION
-String fwversion = "1.0";
+//VERSION 1.1
+String fwversion = "1.1";
 
 #define BUTTON1_PIN 1  // GPIO1 -> PEDAL1  [R1]
 #define BUTTON2_PIN 2  // GPIO2 -> PEDAL2  [R3]
