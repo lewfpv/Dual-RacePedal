@@ -5,7 +5,9 @@
 #include <esp_now.h>
 #include <Adafruit_NeoPixel.h>
 
-//két pedál 
+//VERSION
+String fwversion = "1.0";
+
 #define BUTTON1_PIN 1  // GPIO1 -> PEDAL1  [R1]
 #define BUTTON2_PIN 2  // GPIO2 -> PEDAL2  [R3]
 
@@ -63,8 +65,8 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
            mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Send status: OK, " + String(macStr) : "Send status: FAIL, " + String(macStr));
   if(status != ESP_NOW_SEND_SUCCESS){
-      setColor(led1, 255, 0, 0);
-      setColor(led2, 255, 0, 0);
+      //setColor(led1, 255, 0, 0);
+      //setColor(led2, 255, 0, 0);
   }
 }
 
@@ -95,6 +97,7 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *incomingData, int len) {
 
 //FŐ programkód
 void setup() {
+  delay(3000);
   Serial.begin(115200);
 
   pinMode(BUTTON1_PIN, INPUT_PULLUP);
@@ -103,6 +106,9 @@ void setup() {
   // LED-ek inicializálása és alapból piros
   led1.begin(); setColor(led1, 255, 0, 0);
   led2.begin(); setColor(led2, 255, 0, 0);
+
+  Serial.print("ESP32 MAC: ");
+  Serial.println(WiFi.macAddress());
 
   WiFi.mode(WIFI_STA);
 
